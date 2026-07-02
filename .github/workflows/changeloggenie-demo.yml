@@ -1,0 +1,43 @@
+name: ChangelogGenie Demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: Start date in YYYY-MM-DD format
+        required: true
+        default: "2026-07-01"
+      end_date:
+        description: End date in YYYY-MM-DD format
+        required: true
+        default: "2026-07-03"
+      version:
+        description: Optional changelog version label
+        required: false
+        default: "external-action-demo"
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate changelog with ChangelogGenie
+        uses: Ubuntu-123/changeloggenie-prototype@v0.1.5
+        with:
+          start_date: ${{ inputs.start_date }}
+          end_date: ${{ inputs.end_date }}
+          version: ${{ inputs.version }}
+          output_path: changelog-demo-output.md
+          github_token: ${{ github.token }}
+
+      - name: Show generated changelog
+        run: sed -n '1,160p' changelog-demo-output.md
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog-demo-output
+          path: changelog-demo-output.md
